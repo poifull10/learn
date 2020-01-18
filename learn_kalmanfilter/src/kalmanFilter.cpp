@@ -9,7 +9,6 @@ std::pair<Eigen::VectorXf, Eigen::MatrixXf> KalmanFilter::estimate(
   const Eigen::VectorXf& y_)
 {
   assert(isInitialized_);
-
   Eigen::MatrixXf K =
     Sigma_ * model_->H().transpose() *
     (model_->H() * Sigma_ * model_->H().transpose() + SigmaV_).inverse();
