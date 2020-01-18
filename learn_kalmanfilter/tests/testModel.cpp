@@ -1,5 +1,6 @@
-#include "generateData.h"
+
 #include "gtest/gtest.h"
+#include "model.h"
 
 TEST(ConstantVelocityModel, test_operator)
 {
