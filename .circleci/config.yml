@@ -16,15 +16,23 @@ jobs:
             cmake .. -GNinja
             ninja -j$(nproc)
 
-      - run:
-          name: run_lm
-          command: |
-            ./build/learn_lm/main
-
+  test:
+    docker:
+      - image: poifull10/learn_general
+    steps:
       - run:
           name: test_kf
           command: |
             ./build/learn_kalmanfilter/kftest
+
+  run:
+    docker:
+      - image: poifull10/learn_general
+    steps:
+      - run:
+          name: run_lm
+          command: |
+            ./build/learn_lm/main
 
       - run:
           name: run_kf
