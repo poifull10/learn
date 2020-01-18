@@ -10,7 +10,7 @@ Eigen::MatrixXf generateData(size_t N)
   return Eigen::MatrixXf::Zero(3, N);
 }
 
-Eigen::MatrixXf noise(float col, float row, float stdv)
+Eigen::MatrixXf noise(float row, float col, float stdv)
 {
   std::random_device seed_gen;
   std::default_random_engine engine(seed_gen());

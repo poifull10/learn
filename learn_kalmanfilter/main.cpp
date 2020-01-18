@@ -6,6 +6,6 @@
 int main()
 {
   std::cout << kf::generateData(10) << std::endl;
-  std::cout << kf::addNoise(kf::generateData(10), 1.0) << std::endl;
+  std::cout << kf::generateData(10) + kf::noise(3, 10, 1) << std::endl;
   return 0;
 }
