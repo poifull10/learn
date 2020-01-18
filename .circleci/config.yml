@@ -3,10 +3,8 @@ jobs:
   build:
     docker:
       - image: poifull10/learn_general
-
     steps:
       - checkout
-
       - run:
           name: build_all
           command: |
@@ -15,3 +13,55 @@ jobs:
             cd build
             cmake .. -GNinja
             ninja -j$(nproc)
+
+  test:
+    docker:
+      - image: poifull10/learn_general
+    steps:
+      - checkout
+      - run:
+          name: build_all
+          command: |
+            git submodule update --init --recursive
+            mkdir build
+            cd build
+            cmake .. -GNinja
+            ninja -j$(nproc)
+      - run:
+          name: test_kf
+          command: |
+            ./build/learn_kalmanfilter/kftest
+
+  run:
+    docker:
+      - image: poifull10/learn_general
+    steps:
+      - checkout
+      - run:
+          name: build_all
+          command: |
+            git submodule update --init --recursive
+            mkdir build
+            cd build
+            cmake .. -GNinja
+            ninja -j$(nproc)
+      - run:
+          name: run_lm
+          command: |
+            ./build/learn_lm/main
+      - run:
+          name: run_kf
+          command: |
+            ./build/learn_kalmanfilter/kfmain
+
+workflows:
+  version: 2
+  build-test-and-run:
+    jobs:
+      - build
+      - test:
+          requires:
+            - build
+      - run:
+          requires:
+            - build
