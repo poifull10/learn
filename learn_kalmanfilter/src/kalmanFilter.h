@@ -30,7 +30,7 @@ public:
   std::pair<Eigen::VectorXf, Eigen::MatrixXf> estimate(
     const Eigen::VectorXf& y);
 
-  Eigen::VectorXf y() const;
+  Eigen::VectorXf x() const { return x_; }
 
 private:
   std::unique_ptr<Model> model_;
