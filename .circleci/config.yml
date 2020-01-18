@@ -17,6 +17,16 @@ jobs:
             ninja -j$(nproc)
 
       - run:
+          name: run_lm
+          command: |
+            ./build/learn_lm/main
+
+      - run:
           name: test_kf
           command: |
             ./build/learn_kalmanfilter/kftest
+
+      - run:
+          name: run_kf
+          command: |
+            ./build/learn_kalmanfilter/kfmain
