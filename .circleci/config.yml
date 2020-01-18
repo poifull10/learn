@@ -1,0 +1,17 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: poifull10/learn_general
+
+    steps:
+      - checkout
+
+      - run:
+          name: build_all
+          command: |
+            git submodule update --init --recursive
+            mkdir build
+            cd build
+            cmake .. -GNinja
+            ninja -j$(nproc)
