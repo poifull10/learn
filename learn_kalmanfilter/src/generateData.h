@@ -13,7 +13,7 @@ class Model
 public:
   Model() {}
 
-  virtual Eigen::MatrixXf operator()(const Eigen::MatrixXf& x) = 0;
+  virtual Eigen::VectorXf operator()(const Eigen::VectorXf& x) const = 0;
 
 private:
   Eigen::MatrixXf A_;
@@ -22,13 +22,14 @@ private:
 class ConstantVelocityModel : public Model
 {
 public:
-  ConstantVelocityModel(size_t row) : vel(Eigen::MatrixXf::Random(row, 1)) {}
-  ConstantVelocityModel(const Eigen::MatrixXf& velocity) : vel(velocity) {}
+  ConstantVelocityModel(float dt) : dt_(dt) { init(); }
 
-  Eigen::MatrixXf getVelocity() const { return vel; }
-  Eigen::MatrixXf operator()(const Eigen::MatrixXf& x) override;
+  Eigen::VectorXf operator()(const Eigen::VectorXf& x) const override;
+  Eigen::MatrixXf F() const { return F_; }
 
 private:
-  Eigen::MatrixXf vel;
+  void init();
+  Eigen::MatrixXf F_;
+  float dt_;
 };
 } // namespace kf

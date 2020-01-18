@@ -1,5 +1,6 @@
 #include "generateData.h"
 
+#include <iostream>
 #include <random>
 
 namespace kf
@@ -27,15 +28,18 @@ Eigen::MatrixXf noise(float row, float col, float stdv)
   return noise;
 }
 
-Eigen::MatrixXf ConstantVelocityModel::operator()(const Eigen::MatrixXf& x)
+Eigen::VectorXf ConstantVelocityModel::operator()(
+  const Eigen::VectorXf& x) const
 {
-  assert(vel.rows() == x.rows());
-  Eigen::MatrixXf y = x;
-  for (size_t iw = 0; iw < x.cols(); iw++)
-  {
-    y.col(iw) += vel;
-  }
-  return y;
+  return F_ * x;
+}
+
+void ConstantVelocityModel::init()
+{
+  F_ = Eigen::MatrixXf::Identity(6, 6);
+  F_(0, 3) = dt_;
+  F_(1, 4) = dt_;
+  F_(2, 5) = dt_;
 }
 
 } // namespace kf
