@@ -27,4 +27,15 @@ Eigen::MatrixXf noise(float row, float col, float stdv)
   return noise;
 }
 
+Eigen::MatrixXf ConstantVelocityModel::operator()(const Eigen::MatrixXf& x)
+{
+  assert(vel.rows() == x.rows());
+  Eigen::MatrixXf y = x;
+  for (size_t iw = 0; iw < x.cols(); iw++)
+  {
+    y.col(iw) += vel;
+  }
+  return y;
+}
+
 } // namespace kf
