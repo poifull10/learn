@@ -15,3 +15,8 @@ jobs:
             cd build
             cmake .. -GNinja
             ninja -j$(nproc)
+
+      - run:
+          name: test_kf
+          command: |
+            ./build/learn_kalmanfilter/kftest
