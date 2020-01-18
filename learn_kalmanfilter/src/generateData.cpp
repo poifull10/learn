@@ -27,9 +27,4 @@ Eigen::MatrixXf noise(float row, float col, float stdv)
   return noise;
 }
 
-Eigen::MatrixXf addNoise(const Eigen::MatrixXf& value, float stdv)
-{
-  return value + noise(value.cols(), value.rows(), stdv);
-}
-
 } // namespace kf
