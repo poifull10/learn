@@ -6,7 +6,6 @@ jobs:
 
     steps:
       - checkout
-
       - run:
           name: build_all
           command: |
@@ -20,6 +19,15 @@ jobs:
     docker:
       - image: poifull10/learn_general
     steps:
+      - checkout
+      - run:
+          name: build_all
+          command: |
+            git submodule update --init --recursive
+            mkdir build
+            cd build
+            cmake .. -GNinja
+            ninja -j$(nproc)
       - run:
           name: test_kf
           command: |
@@ -29,11 +37,19 @@ jobs:
     docker:
       - image: poifull10/learn_general
     steps:
+      - checkout
+      - run:
+          name: build_all
+          command: |
+            git submodule update --init --recursive
+            mkdir build
+            cd build
+            cmake .. -GNinja
+            ninja -j$(nproc)
       - run:
           name: run_lm
           command: |
             ./build/learn_lm/main
-
       - run:
           name: run_kf
           command: |
