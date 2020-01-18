@@ -10,15 +10,15 @@ int main()
   size_t N = 20;
   float sigma = 0.1;
   const Eigen::MatrixXf gt = kf::generateData(N, dt);
-  const Eigen::MatrixXf observation = gt + kf::noise(6, N, sigma);
+  const Eigen::MatrixXf observation = gt.topRows(3) + kf::noise(3, N, sigma);
 
   kf::KalmanFilter kf(dt);
   Eigen::VectorXf x0 = Eigen::VectorXf::Zero(6);
   Eigen::MatrixXf Sigma0 = Eigen::MatrixXf::Identity(6, 6);
-  Eigen::MatrixXf SigmaV = Eigen::MatrixXf::Identity(6, 6) * sigma;
+  Eigen::MatrixXf SigmaV = Eigen::MatrixXf::Identity(3, 3) * sigma;
   Eigen::MatrixXf SigmaW = Eigen::MatrixXf::Identity(6, 6) * sigma;
 
-  kf.init(x0, Sigma0, SigmaV, SigmaW);
+  kf.init(x0, Sigma0, SigmaW, SigmaV);
 
   std::cout << "estimating ..." << std::endl;
   std::cout << kf.x().transpose() << std::endl;
