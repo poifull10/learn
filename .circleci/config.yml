@@ -30,8 +30,16 @@ jobs:
       - run:
           name: test_kf
           command: |
-            ./build/learn_kalmanfilter/kftest
-
+            ./build/project/learn_kalmanfilter/kftest
+  check:
+    docker:
+      - image: poifull10/learn_general
+    steps:
+      - checkout
+      - run:
+          name: cppcheck
+          command: |
+            cppcheck  --enable=all --error-exitcode=1 --std=c++17 project
   run:
     docker:
       - image: poifull10/learn_general
@@ -48,11 +56,11 @@ jobs:
       - run:
           name: run_lm
           command: |
-            ./build/learn_lm/main
+            ./build/project/learn_lm/main
       - run:
           name: run_kf
           command: |
-            ./build/learn_kalmanfilter/kfmain
+            ./build/project/learn_kalmanfilter/kfmain
 
 workflows:
   version: 2
@@ -65,3 +73,5 @@ workflows:
       - run:
           requires:
             - build
+      - check
+
