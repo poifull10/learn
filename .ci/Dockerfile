@@ -20,5 +20,4 @@ ENV CC /usr/bin/clang
 
 ENV CXX /usr/bin/clang++
 
-RUN apt-get install -y cppcheck
-
+RUN mkdir /work && cd /work && git clone https://github.com/danmar/cppcheck.git && cd cppcheck && mkdir build && cd build && cmake .. -GNinja && ninja && ninja install && cd /work && rm -rf cppcheck
