@@ -20,3 +20,5 @@ ENV CC /usr/bin/clang
 
 ENV CXX /usr/bin/clang++
 
+RUN apt-get install -y cppcheck
+

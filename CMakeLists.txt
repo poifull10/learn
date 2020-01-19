@@ -9,5 +9,5 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #endif()
 
 add_subdirectory(third_party)
-add_subdirectory(learn_lm)
-add_subdirectory(learn_kalmanfilter)
+add_subdirectory(project)
+
