@@ -37,10 +37,9 @@ jobs:
     steps:
       - checkout
       - run:
-        name: cppcheck
-        command: |
-          cppcheck  --enable=all --error-exitcode=1 --std=c++17 project
-
+          name: cppcheck
+          command: |
+            cppcheck  --enable=all --error-exitcode=1 --std=c++17 project
   run:
     docker:
       - image: poifull10/learn_general
