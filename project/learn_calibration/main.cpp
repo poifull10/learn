@@ -5,7 +5,7 @@
 
 int main(int argc, char** argv)
 {
-  cv::Mat img = cv::imread(std::string(argv[1]) + "/000.png");
+  cv::Mat img = cv::imread(std::string(argv[1]) + "/002.png");
   // cal::ChessBoardTargetDetector td(4, 4);
   // auto output = td.extract(img);
   // cv::drawChessboardCorners(img, cv::Size(4, 4), output, true);
@@ -42,6 +42,12 @@ int main(int argc, char** argv)
   cv::calibrateCamera(objp, cor, cv::Size(1024, 1024), K, dist, r, t,
                       stdDeviationsInt, stdDeviationsExt, perViewErrors);
   std::cout << K << std::endl;
+  std::cout << r << std::endl;
+  std::cout << t << std::endl;
 
+  cv::drawFrameAxes(img, K, dist, r, t, 1.0F, 1);
+
+  cv::imshow("show", img);
+  cv::waitKey(0);
   return 0;
 }
