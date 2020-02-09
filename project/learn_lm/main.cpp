@@ -51,9 +51,9 @@ public:
   void setInitialGuess(float r_, float u_, float v_,
                        const std::vector<float>& thetas_)
   {
-    r = std::log(r_);
-    u = std::log(u_);
-    v = std::log(v_);
+    r = r_;
+    u = u_;
+    v = v_;
     thetas = thetas_;
   }
 
@@ -62,22 +62,31 @@ public:
     std::vector<cv::Point2f> points;
     for (const auto& theta : thetas)
     {
-      points.push_back(model(std::exp(r), std::exp(u), std::exp(v), theta));
+      points.push_back(model(r, u, v, theta));
     }
     return points;
   }
 
-  float energy() const { return std::pow(cv::norm(residual()), 2); }
-
-  cv::Point2f residual() const
+  float energy() const
   {
-    cv::Point2f e;
+    cv::Point2f Err;
     for (size_t i = 0; i < N; i++)
     {
-      const auto sub = observedPoints[i] -
-                       model(std::exp(r), std::exp(u), std::exp(v), thetas[i]);
-      e.x += sub.x * sub.x;
-      e.y += sub.y * sub.y;
+      const auto sub = observedPoints[i] - model(r, u, v, thetas[i]);
+      Err.x += sub.x * sub.x;
+      Err.y += sub.y * sub.y;
+    }
+    return Err.x * Err.x + Err.y * Err.y;
+  }
+
+  cv::Mat residual() const
+  {
+    cv::Mat e = cv::Mat::zeros(cv::Size(1, 2 * N), CV_32F);
+    for (size_t i = 0; i < N; i++)
+    {
+      const auto sub = observedPoints[i] - model(r, u, v, thetas[i]);
+      e.at<float>(cv::Point(0, 2 * i)) = sub.x;
+      e.at<float>(cv::Point(0, 2 * i + 1)) = sub.y;
     }
     return e;
   }
@@ -91,10 +100,8 @@ public:
       const auto J = jac();
       const auto H = J.t() * J;
       const auto res = residual();
-      cv::Mat e = cv::Mat::zeros(2, 1, CV_32F);
-      e.at<float>(cv::Point(0, 0)) = res.x;
-      e.at<float>(cv::Point(0, 1)) = res.y;
-      cv::Mat a = -J.t() * e;
+
+      cv::Mat a = -J.t() * res;
       cv::Mat dx = (H + lambda * I).inv() * a;
       float beforeEnergy = energy();
       update(dx);
@@ -144,31 +151,22 @@ public:
 
   cv::Mat jac() const
   {
-    cv::Mat J = cv::Mat::zeros(2, N + 3, CV_32F);
+    cv::Mat J = cv::Mat::zeros(2 * N, N + 3, CV_32F);
     for (size_t i = 0; i < N; i++)
     {
-      const auto sub_u =
-        observedPoints[i].x - (std::exp(r) * std::cos(thetas[i]) + std::exp(u));
-      const auto sub_v =
-        observedPoints[i].y - (std::exp(r) * std::sin(thetas[i]) + std::exp(v));
-      J.at<float>(cv::Point(0, 0)) +=
-        -std::exp(r) * std::cos(thetas[i]) * sub_u;
-      J.at<float>(cv::Point(0, 1)) +=
-        -std::exp(r) * std::sin(thetas[i]) * sub_v;
-      J.at<float>(cv::Point(1, 0)) += -std::exp(u) * sub_u;
-      J.at<float>(cv::Point(2, 1)) += -std::exp(v) * sub_v;
-      J.at<float>(cv::Point(3 + i, 0)) =
-        std::exp(r) * std::sin(thetas[i]) * sub_u;
-      J.at<float>(cv::Point(3 + i, 1)) =
-        -std::exp(r) * std::cos(thetas[i]) * sub_v;
+      const auto sub_u = observedPoints[i].x - (r * std::cos(thetas[i]) + u);
+      const auto sub_v = observedPoints[i].y - (r * std::sin(thetas[i]) + v);
+      J.at<float>(cv::Point(0, 2 * i)) = -std::cos(thetas[i]);
+      J.at<float>(cv::Point(0, 2 * i + 1)) = -std::sin(thetas[i]);
+      J.at<float>(cv::Point(1, 2 * i)) = -1;
+      J.at<float>(cv::Point(2, 2 * i + 1)) = -1;
+      J.at<float>(cv::Point(3 + i, 2 * i)) = r * std::sin(thetas[i]);
+      J.at<float>(cv::Point(3 + i, 2 * i + 1)) = -r * std::cos(thetas[i]);
     }
     return J;
   }
 
-  std::tuple<float, float, float> getParams() const
-  {
-    return {std::exp(r), std::exp(u), std::exp(v)};
-  }
+  std::tuple<float, float, float> getParams() const { return {r, u, v}; }
 
 private:
   std::vector<cv::Point2f> observedPoints;
