@@ -209,7 +209,7 @@ int main()
 
   std::cout << "Initial Guess is given." << std::endl;
   ce.showParameters();
-  ce.LM(50);
+  ce.LM(10);
   const auto [R, U, V] = ce.getParams();
 
   cv::Mat img = cv::Mat::zeros(cv::Size(u * 2, v * 2), CV_8UC3);
