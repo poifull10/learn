@@ -21,10 +21,10 @@ cv::Point2f model(float R, float u, float v, float theta)
   return cv::Point2f(x, y);
 }
 
-std::pair<std::vector<cv::Point2f>, std::vector<float>> generateData(size_t N,
-                                                                     float R,
-                                                                     float u,
-                                                                     float v)
+std::pair<std::vector<cv::Point2f>, std::vector<float>> generateGT(size_t N,
+                                                                   float R,
+                                                                   float u,
+                                                                   float v)
 {
   std::vector<cv::Point2f> ret;
   std::vector<float> thetas;
@@ -38,6 +38,25 @@ std::pair<std::vector<cv::Point2f>, std::vector<float>> generateData(size_t N,
     ret.push_back(model(R, u, v, rndv));
   }
   return {ret, thetas};
+}
+
+std::pair<std::vector<cv::Point2f>, std::vector<float>> addNoise(
+  const std::vector<cv::Point2f>& gtPoints, const std::vector<float>& gtThetas)
+{
+  std::random_device seed_gen;
+  std::default_random_engine engine(seed_gen());
+  std::normal_distribution dist(0.0F, 0.2F);
+
+  std::vector<cv::Point2f> observedPoints;
+  std::vector<float> observedThetas;
+  for (size_t i = 0; i < gtPoints.size(); i++)
+  {
+    const auto noisyP = gtPoints[i] + noise(10);
+    const auto noisyTheta = gtThetas[i] + dist(engine);
+    observedPoints.push_back(noisyP);
+    observedThetas.push_back(noisyTheta);
+  }
+  return {observedPoints, observedThetas};
 }
 
 class CircleEstimator
@@ -55,16 +74,6 @@ public:
     u = u_;
     v = v_;
     thetas = thetas_;
-  }
-
-  std::vector<cv::Point2f> estimatedPoints() const
-  {
-    std::vector<cv::Point2f> points;
-    for (const auto& theta : thetas)
-    {
-      points.push_back(model(r, u, v, theta));
-    }
-    return points;
   }
 
   float energy() const
@@ -91,7 +100,7 @@ public:
     return e;
   }
 
-  void LM(size_t iter, float lambda_ = 1e-10)
+  void LM(size_t iter, float lambda_ = 1e-10, float tolelance = 1e-6)
   {
     lambda = lambda_;
     cv::Mat I = cv::Mat::eye(N + 3, N + 3, CV_32F);
@@ -99,11 +108,14 @@ public:
     {
       const auto J = jac();
       const auto H = J.t() * J;
-      const auto res = residual();
-
-      cv::Mat a = -J.t() * res;
-      cv::Mat dx = (H + lambda * I).inv() * a;
+      const auto e = residual();
+      cv::Mat b = J.t() * e;
+      cv::Mat dx = -(H + lambda * I).inv() * b;
       float beforeEnergy = energy();
+      if (cv::norm(dx) < tolelance)
+      {
+        return;
+      }
       update(dx);
       float afterEnergy = energy();
       std::cout << "Before Energy: " << beforeEnergy << std::endl;
@@ -154,8 +166,6 @@ public:
     cv::Mat J = cv::Mat::zeros(2 * N, N + 3, CV_32F);
     for (size_t i = 0; i < N; i++)
     {
-      const auto sub_u = observedPoints[i].x - (r * std::cos(thetas[i]) + u);
-      const auto sub_v = observedPoints[i].y - (r * std::sin(thetas[i]) + v);
       J.at<float>(cv::Point(0, 2 * i)) = -std::cos(thetas[i]);
       J.at<float>(cv::Point(0, 2 * i + 1)) = -std::sin(thetas[i]);
       J.at<float>(cv::Point(1, 2 * i)) = -1;
@@ -182,42 +192,35 @@ private:
 
 int main()
 {
-  float n = 300;
-  float r = 300;
-  float u = 512;
-  float v = 512;
+  const float n = 100;
+  const float r = 300;
+  const float u = 512;
+  const float v = 512;
 
-  cv::Mat img = cv::Mat::zeros(cv::Size(u * 2, v * 2), CV_8UC3);
-  std::random_device seed_gen;
-  std::default_random_engine engine(seed_gen());
-  std::normal_distribution dist(0.0F, 0.2F);
+  // data generation
+  const auto [gtPoints, gtThetas] = generateGT(n, r, u, v);
+  const auto [observedPoints, observedThetas] = addNoise(gtPoints, gtThetas);
 
-  const auto [gtPoints, gtThetas] = generateData(n, r, u, v);
-  std::vector<cv::Point2f> observedPoints;
-  std::vector<float> observedThetas;
-
-  for (size_t i = 0; i < gtPoints.size(); i++)
-  {
-    const auto noisyP = gtPoints[i] + noise(10);
-    const auto noisyTheta = gtThetas[i] + dist(engine);
-    observedPoints.push_back(noisyP);
-    observedThetas.push_back(noisyTheta);
-    auto& vi = img.at<cv::Vec3b>(noisyP);
-    vi[1] = 255;
-  }
-
-  CircleEstimator ce(gtPoints);
-  auto initR = r + 100;
-  auto initU = u + 40;
-  auto initV = v - 50;
+  CircleEstimator ce(observedPoints);
+  auto initR = 10;
+  auto initU = 30;
+  auto initV = 10;
   ce.setInitialGuess(initR, initU, initV, observedThetas);
 
   std::cout << "Initial Guess is given." << std::endl;
   ce.showParameters();
-  ce.LM(10);
-
+  ce.LM(50);
   const auto [R, U, V] = ce.getParams();
 
+  cv::Mat img = cv::Mat::zeros(cv::Size(u * 2, v * 2), CV_8UC3);
+  for (size_t i = 0; i < gtPoints.size(); i++)
+  {
+    auto& vi = img.at<cv::Vec3b>(observedPoints[i]);
+    vi[1] = 255;
+
+    auto& vgt = img.at<cv::Vec3b>(gtPoints[i]);
+    vgt[0] = 255;
+  }
   cv::circle(img, cv::Point(initU, initV), initR, cv::Scalar(128, 128, 128));
   cv::circle(img, cv::Point(U, V), R, cv::Scalar(0, 0, 255));
 
