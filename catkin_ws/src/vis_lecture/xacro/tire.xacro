@@ -1,0 +1,22 @@
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:macro name="make_tire" params="suffix parent xyz rpy radius length">
+    <joint name="${suffix}_joint" type="fixed">
+      <parent link="${parent}" />
+      <child link="${suffix}_link" />
+      <origin xyz="${xyz}" rpy="${rpy}" />
+    </joint>
+
+    <link name="${suffix}_link">
+      <visual>
+        <geometry>
+          <cylinder radius="${radius}" length="${length}" />
+        </geometry>
+        <material name="gray">
+          <color rgba="0.3 0.3 0.3 2.0" />
+        </material>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+      </visual>
+    </link>
+  </xacro:macro>
+
+</robot>
