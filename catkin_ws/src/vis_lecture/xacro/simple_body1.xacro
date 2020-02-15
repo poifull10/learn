@@ -1,0 +1,42 @@
+<robot name="test_robot" xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:property name="gcolor" value="0 1 0 2.0" />
+
+  <material name="green">
+    <color rgba="${gcolor}" />
+  </material>
+
+  <link name="base_link"/>
+
+  <joint name="body_joint" type="fixed">
+    <parent link="base_link"/>
+    <child  link="body_link"/>
+  </joint>
+
+  <link name="body_link">
+    <visual>
+      <geometry>
+        <box size="0.3 0.3 0.2"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <material name="green" />
+    </visual>
+  </link>
+
+  <joint name="body_joint2" type="fixed">
+    <parent link="body_link"/>
+    <child link="body_link2"/>
+    <origin xyz="0.5 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <link name="body_link2">
+    <visual>
+      <geometry>
+        <sphere radius="0.2"/>
+      </geometry>
+      <origin  xyz="0 0 0" rpy="0 0 0"/>
+      <material name="green"/>
+    </visual>
+  </link>
+
+</robot>
+
