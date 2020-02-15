@@ -3,6 +3,7 @@
   <xacro:property name="tire_width" value="0.03" />
   <xacro:property name="body_width" value="0.4" />
   <xacro:property name="body_height" value="0.4" />
+  <xacro:property name="tire_height" value="0.1" />
 
   <xacro:include filename="tire.xacro" />
 
@@ -10,12 +11,14 @@
     <color rgba="${gcolor}" />
   </material>
 
-  <link name="base_link" />
+  <link name="base_link">
+    <origin xyz="0 0 ${tire_height}" rpy="0 0 0" />
+  </link>
 
   <joint name="body_joint" type="fixed">
     <parent link="base_link"/>
     <child  link="body_link"/>
-    <origin xyz="0 0 0" rpy="0 0 0" />
+    <origin xyz="0 0 ${tire_height}" rpy="0 0 0" />
   </joint>
 
   <link name="body_link">
@@ -28,10 +31,10 @@
     </visual>
   </link>
   
-  <xacro:make_tire suffix="tire0" parent="body_link" xyz="${body_width/2} ${body_height/2+tire_width/2} 0.0" rpy="0 1.57 -1.57" radius="0.1" length="${tire_width}"/>
-  <xacro:make_tire suffix="tire1" parent="body_link" xyz="${-(body_width/2)} ${body_height/2+tire_width/2} 0.0" rpy="0 1.57 -1.57" radius="0.1" length="${tire_width}"/>
-  <xacro:make_tire suffix="tire2" parent="body_link" xyz="${body_width/2} ${-(body_height/2+tire_width/2)} 0.0" rpy="0 1.57 1.57" radius="0.1" length="${tire_width}"/>
-  <xacro:make_tire suffix="tire3" parent="body_link" xyz="${-(body_width/2)} ${-(body_height/2+tire_width/2)} 0.0" rpy="0 1.57 1.57" radius="0.1" length="${tire_width}"/>
+  <xacro:make_tire suffix="tire0" parent="body_link" xyz="${body_width/2} ${body_height/2+tire_width/2} 0" rpy="0 1.57 -1.57" radius="${tire_height}" length="${tire_width}"/>
+  <xacro:make_tire suffix="tire1" parent="body_link" xyz="${-(body_width/2)} ${body_height/2+tire_width/2} 0" rpy="0 1.57 -1.57" radius="${tire_height}" length="${tire_width}"/>
+  <xacro:make_tire suffix="tire2" parent="body_link" xyz="${body_width/2} ${-(body_height/2+tire_width/2)} 0" rpy="0 1.57 1.57" radius="${tire_height}" length="${tire_width}"/>
+  <xacro:make_tire suffix="tire3" parent="body_link" xyz="${-(body_width/2)} ${-(body_height/2+tire_width/2)} 0" rpy="0 1.57 1.57" radius="${tire_height}" length="${tire_width}"/>
 
 </robot>
 

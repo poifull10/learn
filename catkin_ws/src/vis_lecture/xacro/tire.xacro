@@ -1,9 +1,10 @@
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
   <xacro:macro name="make_tire" params="suffix parent xyz rpy radius length">
-    <joint name="${suffix}_joint" type="fixed">
+    <joint name="${suffix}_joint" type="continuous">
       <parent link="${parent}" />
       <child link="${suffix}_link" />
       <origin xyz="${xyz}" rpy="${rpy}" />
+      <axis xyz="0 0 1" />
     </joint>
 
     <link name="${suffix}_link">
