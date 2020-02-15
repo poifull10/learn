@@ -1,4 +1,5 @@
-<robot name="test_robot" xmlns:xacro="http://ros.org/wiki/xacro">
+<robot name="test_robot" 
+  xmlns:xacro="http://ros.org/wiki/xacro">
   <xacro:property name="gcolor" value="0 1 0 2.0" />
   <xacro:property name="tire_width" value="0.03" />
   <xacro:property name="body_width" value="0.4" />
@@ -16,25 +17,42 @@
   </link>
 
   <joint name="body_joint" type="fixed">
-    <parent link="base_link"/>
-    <child  link="body_link"/>
+    <parent link="base_link" />
+    <child link="body_link" />
     <origin xyz="0 0 ${tire_height}" rpy="0 0 0" />
   </joint>
 
   <link name="body_link">
     <visual>
       <geometry>
-        <box size="0.4 0.4 0.01"/>
+        <box size="0.4 0.4 0.01" />
       </geometry>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <origin xyz="0 0 0" rpy="0 0 0" />
       <material name="green" />
     </visual>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <mass value="1.0" />
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001" />
+    </inertial>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.4 0.4 0.01" />
+      </geometry>
+    </collision>
   </link>
-  
-  <xacro:make_tire suffix="tire0" parent="body_link" xyz="${body_width/2} ${body_height/2+tire_width/2} 0" rpy="0 1.57 -1.57" radius="${tire_height}" length="${tire_width}"/>
-  <xacro:make_tire suffix="tire1" parent="body_link" xyz="${-(body_width/2)} ${body_height/2+tire_width/2} 0" rpy="0 1.57 -1.57" radius="${tire_height}" length="${tire_width}"/>
-  <xacro:make_tire suffix="tire2" parent="body_link" xyz="${body_width/2} ${-(body_height/2+tire_width/2)} 0" rpy="0 1.57 1.57" radius="${tire_height}" length="${tire_width}"/>
-  <xacro:make_tire suffix="tire3" parent="body_link" xyz="${-(body_width/2)} ${-(body_height/2+tire_width/2)} 0" rpy="0 1.57 1.57" radius="${tire_height}" length="${tire_width}"/>
+
+  <gazebo reference="body_link">
+    <material>
+      Gazebo/Green
+    </material>
+  </gazebo>
+
+  <xacro:make_tire suffix="tire0" parent="body_link" xyz="${body_width/2} ${body_height/2+tire_width/2} 0" rpy="0 1.57 -1.57" radius="${tire_height}" length="${tire_width}" />
+  <xacro:make_tire suffix="tire1" parent="body_link" xyz="${-(body_width/2)} ${body_height/2+tire_width/2} 0" rpy="0 1.57 -1.57" radius="${tire_height}" length="${tire_width}" />
+  <xacro:make_tire suffix="tire2" parent="body_link" xyz="${body_width/2} ${-(body_height/2+tire_width/2)} 0" rpy="0 1.57 1.57" radius="${tire_height}" length="${tire_width}" />
+  <xacro:make_tire suffix="tire3" parent="body_link" xyz="${-(body_width/2)} ${-(body_height/2+tire_width/2)} 0" rpy="0 1.57 1.57" radius="${tire_height}" length="${tire_width}" />
 
 </robot>
 
